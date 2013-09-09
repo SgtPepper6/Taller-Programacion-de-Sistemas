@@ -3,7 +3,8 @@ import java.util.*;
 
 /*** Errores ***/
 class Errores{
-	int errores[][] =  {{1,-5,-5,-5,-1},
+	//Matriz
+	int errores[][] =  {{1,-5,-5,-5,-6},
 						{2,6,7,-6,600},
 						{3,13,10,-6,600},
 						{4,14,12,-6,600},
@@ -41,7 +42,9 @@ class Errores{
 		cont = 0;
 		continuar = true;
 		estado = 0;
+		entrada = 0;
 		
+		//Entrada según caracter
 		while((arreglo.length > cont) && continuar){
 			switch(arreglo[cont]){
 			//Letra
@@ -79,7 +82,7 @@ class Errores{
 			
 			cont++;
 			
-			estado = errores[estado][entrada];
+			estado = errores[estado][entrada];//Cambio de estados
 			
 			if(estado < 0){
 				continuar = false;
@@ -92,24 +95,25 @@ class Errores{
 			estado = errores[estado][entrada];
 		}
 		
+		//Descripción de errores
 		switch(estado){
 			case -1:
-				descrip = "Fuera de rango";
+				descrip = "Fuera de rango.";
 				break;
 			case -2:
-				descrip = "Incluye 2 puntos";
+				descrip = "Incluye más de un punto.";
 				break;
 			case -3:
-				descrip = "Caracter inválido en CODOP"; 
+				descrip = "Caracter inválido en CODOP."; 
 				break;
 			case -4:
-				descrip = "Caracter inválido en Etiqueta";
+				descrip = "Caracter inválido en Etiqueta.";
 				break;
 			case -5:
-				descrip = "Inicio con caracter diferente a una letra";
+				descrip = "Inicio con caracter diferente a una letra.";
 				break;
 			case -6:
-				descrip = "Caracter inválido";
+				descrip = "Caracter inválido.";
 				break;
 			case 600:
 				break;
@@ -125,11 +129,10 @@ class Evaluar{
 	String etq, codop, oper;
 	boolean betq, bcodop, boper;
 	String ini_linea;
-	
-	char orden[] = new char[3];
-	
+
 	//Combinaciones validas
 	int combinaciones[][] = {{1,2,3},{1,2,0},{0,2,3},{0,2,0}};
+	char orden[] = new char[3];
 	
 	/*** Constructor ***/
 	public Evaluar(){
@@ -201,6 +204,7 @@ class Flujo{
 	String str_end;
 	boolean end;
 	
+	//Errores Objeto
 	boolean existe, existe_inst, existe_error, aux_error;
 	int cont;
 	String linea, aux, linea_error;
@@ -239,15 +243,15 @@ class Flujo{
 	}//EXISTENCIA
 	
 	/*** Lectura linea por linea ***/
-	public void Lectura(){
+	public void Lectura(String ruta){
 		
 		try{
-			
-			existe_inst = new File("Inst.txt").exists();
-			existe_error = new File("Error.txt").exists();
+			//Existencia de los archivos de errores e instrucciones
+			existe_inst = new File(ruta + ".inst").exists();
+			existe_error = new File(ruta + ".err").exists();
 			
 			if(!existe_inst){//Crear archivo INST si este no existe
-				arch2 = new File("Inst.txt");
+				arch2 = new File(ruta + ".inst");
 				try{
 					arch2.createNewFile();
 					
@@ -256,8 +260,9 @@ class Flujo{
 				}
 			}
 			
+			
 			if(!existe_error){//Crear archivo ERROR si este no existe
-				arch3 = new File("Error.txt");
+				arch3 = new File(ruta + ".err");
 				try{
 					arch3.createNewFile();
 					
@@ -266,11 +271,11 @@ class Flujo{
 				}
 			}
 			
-			existe_inst = new File("Inst.txt").exists();
-			existe_error = new File("Error.txt").exists();
+			existe_inst = new File(ruta + ".inst").exists();
+			existe_error = new File(ruta + ".err").exists();
 			
 			if(existe_inst){//Cabecera del archivo INST
-				arch2 = new File("Inst.txt");
+				arch2 = new File(ruta + ".inst");
 				fw = new FileWriter(arch2);
 				bw = new BufferedWriter(fw);
 				pw = new PrintWriter(bw);
@@ -283,13 +288,13 @@ class Flujo{
 			}
 			
 			if(existe_inst){//Cabecera del archivo ERROR
-				arch3 = new File("Error.txt");
+				arch3 = new File(ruta + ".err");
 				fw2 = new FileWriter(arch3);
 				bw2 = new BufferedWriter(fw2);
 				pw2 = new PrintWriter(bw2);
 				
 				pw2.write(" LINEA\tCAMPO\tERROR\r");
-				bw2.append("\n-------------------------------------------------------------------\r\n");
+				bw2.append("\n-----------------------------------------------------------------------------------\r\n");
 				
 				pw2.close();
 				bw2.close();
@@ -297,7 +302,7 @@ class Flujo{
 			
 			cont = 0;
 			
-			/** Esencia **/
+			/** Esencia **///Creación de ambos archivos y evaluación de lineas
 			while(((linea=br.readLine())!=null) && !end){//Lectura del archivo linea por linea
 					
 				cont++;
@@ -313,24 +318,24 @@ class Flujo{
 					
 				}
 				
+				//**De acuerdo al número de tokens se distinguen las líneas
 				/** Tres tokens **/
 				if(tokens.countTokens() == 3){
 					//Primer caracter de la linea espacio || tabulacion
 					if(linea.startsWith("\t") || linea.startsWith(" ")){
-						///------------------------------------------>Escribir en archivo ERROR
 						
-						arch3 = new File("Error.txt");
+						arch3 = new File(ruta + ".err");
 						fw2 = new FileWriter(arch3,true);
 						bw2 = new BufferedWriter(fw2);
 						pw2 = new PrintWriter(bw2);
 						
-						bw2.append(cont + "\tNULL" + "\tEspacio o tabulación como primer caracter\r\n");
+						bw2.append(cont + "\tNULL" + "\tEspacio o tabulación como primer caracter.\r\n");
 						
 						pw2.close();
 						bw2.close();
 					}
 					else{
-						//Etiqueta
+						//---------->Etiqueta
 						objeto.betq = objeto.Etiqueta((objeto.etq = tokens.nextToken()));
 						
 						if(objeto.betq){//Instruccion
@@ -339,21 +344,25 @@ class Flujo{
 						}else{//Error
 							objeto.orden[0] = '6';
 							
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.etq));
 							linea_error = obj_error.Error(objeto.etq);
 							
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
 							
-							bw2.append(cont + "\tETQ" + "\t" + linea_error + "\r\n");
+							if(obj_error.estado == -3){//Al devolver -3 indica error en CODOP, por la existencia de un punto
+								bw2.append(cont + "\tETQ" + "\tCaracter inválido en Etiqueta.\r\n");
+							}
+							else{
+								bw2.append(cont + "\tETQ" + "\t" + linea_error + "\r\n");
+							}							
 							
 							pw2.close();
 							bw2.close();
 						}
 						
-						//CODOP
+						//---------->CODOP
 						objeto.bcodop = objeto.Codop((objeto.codop = tokens.nextToken()));
 						
 						if(objeto.bcodop){//Instruccion
@@ -370,18 +379,23 @@ class Flujo{
 							
 							linea_error = obj_error.Error(objeto.codop);
 							
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
 
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.codop));
-							
-							if(obj_error.estado == 600){
+							//Al culminar en el estado 600, el codop es inválida si cuenta con números o "_"
+							if((obj_error.estado == 600) || objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9")){
 								
-								bw2.append(cont + "\tCODOP" + "\tFuera de rango\r\n");
-								//System.out.println("------------------->");
-								//System.out.println("--------------------------------------------->>" /*+ obj_error.Error(objeto.codop)*/ + "------>> Rango");
+								//Al ser caracteres de Etiqueta
+								if(objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9"))
+									bw2.append(cont + "\tCODOP" + "\tCaracter inválido en CODOP.\r\n");
+								else if(obj_error.estado == 600)
+									bw2.append(cont + "\tCODOP" + "\tFuera de rango.\r\n");
 							}
 							else{
 								bw2.append(cont + "\tCODOP" + "\t" + linea_error + "\r\n");
@@ -391,7 +405,7 @@ class Flujo{
 							bw2.close();
 						}
 						
-						//Operando
+						//---------->Operando
 						objeto.boper = objeto.Operando((objeto.oper = tokens.nextToken()));
 						
 						if(objeto.boper){//Instruccion
@@ -406,7 +420,7 @@ class Flujo{
 						if(objeto.bcodop && objeto.betq && objeto.boper && (aux.equals("123")) && !end){//Si todo está correcto, agregar al archivo de Intruccciones
 							
 							//Re-escribir en archivo
-							arch2 = new File("Inst.txt");
+							arch2 = new File(ruta + ".inst");
 							fw = new FileWriter(arch2,true);
 							bw = new BufferedWriter(fw);
 							pw = new PrintWriter(bw);
@@ -419,12 +433,12 @@ class Flujo{
 						}//IF agregar INST
 						else if(end){//ERROR aparece END junto un Operando
 							
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
 							
-							bw2.append(cont + "\tCODOP" + "\tDirectiva END con operando\r\n");
+							bw2.append(cont + "\tCODOP" + "\tDirectiva END con operando.\r\n");
 							
 							pw2.close();
 							bw2.close();
@@ -444,7 +458,7 @@ class Flujo{
 						objeto.orden[0] = '0';
 						objeto.betq = false;
 						
-						//CODOP
+						//---------->CODOP
 						objeto.bcodop = objeto.Codop((objeto.codop = tokens.nextToken()));
 						
 						if(objeto.bcodop){//Instruccion
@@ -456,24 +470,32 @@ class Flujo{
 							if(str_end.equals("end"))
 								end = true;
 							
-						}else{
+						}else{//Error
 							objeto.orden[1] = '6';
 							
 							linea_error = obj_error.Error(objeto.codop);
 							
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
-
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.codop));
 							
-							if(obj_error.estado == 600){
+							//Al culminar en el estado 600, el codop es inválida si cuenta con números o "_"
+							if((obj_error.estado == 600) || objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9")){//Al contener el caracter _
 								
-								bw2.append(cont + "\tCODOP" + "\tFuera de rango\r\n");
-								//System.out.println("------------------->");
-								//System.out.println("--------------------------------------------->>" /*+ obj_error.Error(objeto.codop)*/ + "------>> Rango");
+								//Al ser caracteres de Etiqueta
+								if(objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9"))
+									bw2.append(cont + "\tCODOP" + "\tCaracter inválido en CODOP.\r\n");
+								else if(obj_error.estado == 600)
+									bw2.append(cont + "\tCODOP" + "\tFuera de rango.\r\n");
 							}
+							
+							
+							
 							else{
 								bw2.append(cont + "\tCODOP" + "\t" + linea_error + "\r\n");
 							}
@@ -482,7 +504,7 @@ class Flujo{
 							bw2.close();
 						}
 						
-						//Operando
+						//---------->Operando
 						objeto.boper = objeto.Operando((objeto.oper = tokens.nextToken()));
 						
 						if(objeto.boper){
@@ -496,7 +518,7 @@ class Flujo{
 						
 						if(!objeto.betq && objeto.bcodop && objeto.boper && (aux.equals("023")) && !end){//Si todo está correcto, agregar al archivo de Intruccciones
 							//Re-escribir en archivo
-							arch2 = new File("Inst.txt");
+							arch2 = new File(ruta + ".inst");
 							fw = new FileWriter(arch2,true);
 							bw = new BufferedWriter(fw);
 							pw = new PrintWriter(bw);
@@ -507,12 +529,12 @@ class Flujo{
 							bw.close();
 						}//IF agregar INST
 						else if(end){
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
 							
-							bw2.append(cont + "\tCODOP" + "\tDirectiva END con operando\r\n");
+							bw2.append(cont + "\tCODOP" + "\tDirectiva END con operando.\r\n");
 							
 							pw2.close();
 							bw2.close();
@@ -521,7 +543,7 @@ class Flujo{
 						}//ELSE-IF agregar ERROR <END>
 					}
 					else{
-						//Etiqueta-------------------------------------------------------------------------------------------------------------------
+						//---------->Etiqueta
 						objeto.betq = objeto.Etiqueta((objeto.etq = tokens.nextToken()));
 						
 						if(objeto.betq){
@@ -530,24 +552,26 @@ class Flujo{
 						}else{
 							objeto.orden[0] = '6';
 							
-							linea_error = obj_error.Error(objeto.codop);
+							linea_error = obj_error.Error(objeto.etq);
 							
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
-
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.codop));
 							
-							bw2.append(cont + "\tETQ" + "\t" + linea_error + "\r\n");
+							if(obj_error.estado == -3){//Al devolver -3 indica error en CODOP, por la existencia de un punto
+								
+								bw2.append(cont + "\tETQ" + "\tCaracter inválido en Etiqueta.\r\n");
+							}
+							else{
+								bw2.append(cont + "\tETQ" + "\t" + linea_error + "\r\n");
+							}
 							
 							pw2.close();
 							bw2.close();
-							
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.etq));
 						}
 						
-						//CODOP
+						//---------->CODOP
 						objeto.bcodop = objeto.Codop((objeto.codop = tokens.nextToken()));
 						
 						if(objeto.bcodop){
@@ -562,23 +586,27 @@ class Flujo{
 						}else{
 							objeto.orden[1] = '6';
 							
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.codop));
-							
 							linea_error = obj_error.Error(objeto.codop);
 							
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
-
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.codop));
 							
-							if(obj_error.estado == 600){
+							//Al culminar en el estado 600, el codop es inválida si cuenta con números o "_"
+							if((obj_error.estado == 600) || objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9")){//Al contener el caracter _
 								
-								bw2.append(cont + "\tCODOP" + "\tFuera de rango\r\n");
-								//System.out.println("------------------->");
-								//System.out.println("--------------------------------------------->>" /*+ obj_error.Error(objeto.codop)*/ + "------>> Rango");
+								//Al ser caracteres de Etiqueta
+								if(objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9"))
+									bw2.append(cont + "\tCODOP" + "\tCaracter inválido en CODOP.\r\n");
+								else if(obj_error.estado == 600)
+									bw2.append(cont + "\tCODOP" + "\tFuera de rango.\r\n");
 							}
+							
 							else{
 								bw2.append(cont + "\tCODOP" + "\t" + linea_error + "\r\n");
 							}
@@ -596,7 +624,7 @@ class Flujo{
 						
 						if(objeto.betq && objeto.bcodop && !objeto.boper && (aux.equals("120")) && !end){//Si todo está correcto, agregar al archivo de Intruccciones
 							//Re-escribir en archivo
-							arch2 = new File("Inst.txt");
+							arch2 = new File(ruta + ".inst");
 							fw = new FileWriter(arch2,true);
 							bw = new BufferedWriter(fw);
 							pw = new PrintWriter(bw);
@@ -621,7 +649,7 @@ class Flujo{
 						objeto.orden[2] = '0';
 						objeto.boper = false;
 						
-						//CODOP
+						//---------->CODOP
 						objeto.bcodop = objeto.Codop((objeto.codop = tokens.nextToken()));
 						
 						if(objeto.bcodop){
@@ -638,18 +666,23 @@ class Flujo{
 							
 							linea_error = obj_error.Error(objeto.codop);
 							
-							arch3 = new File("Error.txt");
+							arch3 = new File(ruta + ".err");
 							fw2 = new FileWriter(arch3,true);
 							bw2 = new BufferedWriter(fw2);
 							pw2 = new PrintWriter(bw2);
-
-							//System.out.println("--------------------------------------------->>" + obj_error.Error(objeto.codop));
 							
-							if(obj_error.estado == 600){
+							//Al culminar en el estado 600, el codop es inválida si cuenta con números o "_"
+							if((obj_error.estado == 600) || objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9")){//Al contener el caracter _
 								
-								bw2.append(cont + "\tCODOP" + "\tFuera de rango\r\n");
-								//System.out.println("------------------->");
-								//System.out.println("--------------------------------------------->>" /*+ obj_error.Error(objeto.codop)*/ + "------>> Rango");
+								//Al ser caracteres de Etiqueta
+								if(objeto.codop.contains("_") || objeto.codop.contains("0") || objeto.codop.contains("1") || objeto.codop.contains("2")
+									 || objeto.codop.contains("3") || objeto.codop.contains("4") || objeto.codop.contains("5") || objeto.codop.contains("6") || objeto.codop.contains("7")
+									 || objeto.codop.contains("8") || objeto.codop.contains("9"))
+									bw2.append(cont + "\tCODOP" + "\tCaracter inválido en CODOP.\r\n");
+								else if(obj_error.estado == 600)
+									bw2.append(cont + "\tCODOP" + "\tFuera de rango.\r\n");
 							}
 							else{
 								bw2.append(cont + "\tCODOP" + "\t" + linea_error + "\r\n");
@@ -663,7 +696,7 @@ class Flujo{
 						
 						if(!objeto.betq && objeto.bcodop && !objeto.boper && (aux.equals("020")) && !end){//Si todo está correcto, agregar al archivo de Intruccciones
 							//Re-escribir en archivo
-							arch2 = new File("Inst.txt");
+							arch2 = new File(ruta + ".inst");
 							fw = new FileWriter(arch2,true);
 							bw = new BufferedWriter(fw);
 							pw = new PrintWriter(bw);
@@ -674,11 +707,50 @@ class Flujo{
 							bw.close();
 						}
 					}
+					else{
+						linea_error = obj_error.Error(objeto.codop);
+						
+						arch3 = new File(ruta + ".err");
+						fw2 = new FileWriter(arch3,true);
+						bw2 = new BufferedWriter(fw2);
+						pw2 = new PrintWriter(bw2);
+
+						bw2.append(cont + "\tCODOP" + "\tEspacio o tabulación faltante antes de la sentencia. Debe ser CODOP.\r\n");
+						
+						pw2.close();
+						bw2.close();
+					}
 				}//IF tokens.countTokens == 1
 				
+				if(tokens.countTokens() > 3){
+					arch3 = new File(ruta + ".err");
+					fw2 = new FileWriter(arch3,true);
+					bw2 = new BufferedWriter(fw2);
+					pw2 = new PrintWriter(bw2);
+
+					bw2.append(cont + "\tNULL" + "\tNúmero de sentencias superior al aceptado.\r\n");
+					
+					pw2.close();
+					bw2.close();
+				}
+				
+			}//WHILE <No sea fin del archivo y no aparezca el CODOP END>
+			
+			//En caso de no encontrar la sentencia END
+			if(!end){
+				arch3 = new File(ruta + ".err");
+				fw2 = new FileWriter(arch3,true);
+				bw2 = new BufferedWriter(fw2);
+				pw2 = new PrintWriter(bw2);
+
+				bw2.append(cont + "\tCODOP" + "\tLa sentencia END no aparece en el archivo.\r\n");
+				
+				pw2.close();
+				bw2.close();
 			}
+			
 		}catch(Exception e){
-			System.out.println("ERROR: Archivo no encontrado!");
+			System.out.println("ERROR: Archivo no encontrado! AQUI");
 		}
 	}//LECTURA
 	
@@ -692,20 +764,33 @@ public class Prc1 {
 		Scanner sc = new Scanner(System.in);
 		String str, ruta;
 		
-		//System.out.println("->Ruta: ");
-		//ruta = sc.nextLine();
-		ruta = "Ensamblador.txt";
+		System.out.println("->Ruta: ");
+		ruta = sc.nextLine();
+		//ruta = "C:\\Users\\borrega\\Documents\\CUCEI\\5to\\Taller de Programación de Sistemas\\Programas\\Practica_1\\Ensamblador.txt";
 		
-		//Objeto
-		Flujo objeto = new Flujo(ruta);
+		if(!ruta.endsWith(".asm")){
+			System.out.println("ERROR: Verifica la ruta.\n\tLa extensión debe ser .asm");
+		}
+		else{
 		
-		objeto.existe = objeto.Existe(ruta);
-		
-		System.out.println("->Existe: " + objeto.existe);
-		
-		if(objeto.existe){
-			objeto.Lectura();
-			System.out.println("->Dentro del IF lectura");
+			//Objeto
+			Flujo objeto = new Flujo(ruta);
+			
+			objeto.existe = objeto.Existe(ruta);
+			
+			System.out.println("->Existe: " + objeto.existe);
+			
+			if(objeto.existe){
+				str = ruta;
+				str = str.substring(0, (str.length()-4));
+				System.out.println(str);
+				ruta = str;
+				
+				objeto.Lectura(ruta);
+				System.out.println("->Dentro del IF lectura");
+			}else{
+				System.out.println("ERROR: La ruta " + ruta + " no es válida.");
+			}
 		}
 	}//MAIN
 }//PRC1
