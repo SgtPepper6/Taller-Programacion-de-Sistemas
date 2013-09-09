@@ -766,6 +766,7 @@ public class Prc1{
 		
 		System.out.println("->Ruta: ");
 		ruta = sc.nextLine();
+		//ruta = "C:\\Users\\borrega\\Documents\\CUCEI\\5to\\Taller de Programación de Sistemas\\Programas\\Practica_1\\Ensamblador.txt";
 		
 		if(!ruta.endsWith(".asm")){
 			System.out.println("ERROR: Verifica la ruta.\n\tLa extensión debe ser .asm");
